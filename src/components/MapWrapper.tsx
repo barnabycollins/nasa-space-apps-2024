@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 async function loadMap(
+  mapPath: string,
   setData: React.Dispatch<React.SetStateAction<object | null>>
 ) {
-  const res = await fetch("/maps/Britain_plan_map.geojson");
+  const res = await fetch(mapPath);
 
   const json = await res.json();
 
@@ -16,7 +17,7 @@ export function MapWrapper() {
   const [mapData, setMapData] = useState<null | object>(null);
 
   useEffect(() => {
-    loadMap(setMapData);
+    loadMap("/maps/Britain_plan_map.geojson", setMapData);
   }, []);
 
   return (
