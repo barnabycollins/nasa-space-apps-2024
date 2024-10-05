@@ -1,6 +1,6 @@
 import Map, { Layer, Marker, Source } from "react-map-gl/maplibre";
-import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useState } from "react";
+import "maplibre-gl/dist/maplibre-gl.css";
 
 async function loadMap(
   setData: React.Dispatch<React.SetStateAction<object | null>>
