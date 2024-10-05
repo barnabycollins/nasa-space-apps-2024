@@ -21,7 +21,7 @@ jobs:
           node-version: 18
 
       - name: Install modules
-        run: npm install
+        run: yarn install
 
       - name: Build
         run: npm run build
