@@ -1,0 +1,23 @@
+.slider-fullscreen .slick-slide {
+  border: 0 !important;
+}
+
+/* buttons */
+.slick-arrow.slick-prev {
+  left: 25px;
+  z-index: 1;
+}
+.slick-arrow.slick-next {
+  right: 25px;
+}
+
+.slick-dots {
+  bottom: unset;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  z-index: 1;
+  width: fit-content;
+  display: flex !important;
+  flex-direction: column;
+}
