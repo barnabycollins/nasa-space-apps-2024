@@ -115,7 +115,7 @@ export function MapWrapper() {
           <Layer {...layerProps} />
         </Source>
       ))}
-      <Marker longitude={-2.7608274} latitude={54.6633126} color="red" />
+      {/* <Marker longitude={-2.7608274} latitude={54.6633126} color="red" /> */}
     </Map>
   );
 }
