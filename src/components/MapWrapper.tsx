@@ -5,7 +5,7 @@ import Map, {
   Source,
   LayerProps,
 } from "react-map-gl/maplibre";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Stack } from "react-bootstrap";
 
@@ -13,6 +13,9 @@ const NO2_LEFT_EDGE = -11.6895;
 const NO2_TOP_EDGE = 60.3369;
 const NO2_RIGHT_EDGE = 3.8672;
 const NO2_BOTTOM_EDGE = 48.3838;
+
+const allowedMapLayers = ["coalSeams", "income"] as const;
+type AllowedMapLayer = (typeof allowedMapLayers)[number];
 
 const NO2_IMAGE_COORDS: [
   [number, number],
@@ -66,11 +69,12 @@ export function MapWrapper() {
   const [mapLayers, setMapLayers] = useState<Layer[]>([]);
   const [shownImage, setShownImage] = useState<string | null>(null);
 
+  const [shownMapLayers, setShownMapLayers] = useState<AllowedMapLayer[]>([
+    "coalSeams",
+    "income",
+  ]);
+
   useEffect(() => {
-    // loadMap(
-    //   { name: "basemap", layerIndex: 0, fileName: "britain_standard" },
-    //   setMapLayers
-    // );
     loadMap(
       {
         id: "coalSeams",
@@ -119,7 +123,7 @@ export function MapWrapper() {
   }, []);
 
   return (
-    <Stack direction="horizontal">
+    <Stack direction="horizontal" gap={4}>
       <Map
         // initialViewState={{
         //   latitude: 54.6633126,
@@ -132,34 +136,91 @@ export function MapWrapper() {
       >
         {mapLayers.map(({ data, layerProps }) => (
           <Source type="geojson" key={layerProps.id} data={data}>
-            <Layer {...layerProps} />
+            <Layer
+              {...layerProps}
+              layout={{
+                ...layerProps.layout,
+                visibility: shownMapLayers.includes(
+                  layerProps.id as AllowedMapLayer
+                )
+                  ? "visible"
+                  : "none",
+              }}
+            />
           </Source>
         ))}
         <Source
           type="image"
-          url={`/NO2_images/${shownImage ?? "2005"} NO2 crop.png`}
+          url={`/NO2_images/${shownImage} NO2 crop.png`}
           coordinates={NO2_IMAGE_COORDS}
         >
           <Layer
             id="geoff"
             type="raster"
-            paint={{ "raster-opacity": shownImage !== null ? 1 : 0 }}
+            paint={{ "raster-opacity": shownImage !== null ? 0.5 : 0 }}
           />
         </Source>
         {/* <Marker longitude={-2.7608274} latitude={54.6633126} color="red" /> */}
       </Map>
-      <select
-        onChange={(e) => {
-          setShownImage(e.target.value === "none" ? null : e.target.value);
-        }}
-      >
-        <option value="none">none</option>
-        <option value="2005">2005</option>
-        <option value="2010">2010</option>
-        <option value="2015">2015</option>
-        <option value="2020">2020</option>
-        <option value="2023">2023</option>
-      </select>
+      <Stack>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "100px 1fr",
+          }}
+        >
+          {allowedMapLayers.map((l) => (
+            <Fragment key={l}>
+              <div>{l}</div>
+              <div>
+                <input
+                  type="checkbox"
+                  id={`${l}-checkbox`}
+                  onClick={() => {
+                    setShownMapLayers((layers) => {
+                      const layersWithoutCurrent = layers.filter(
+                        (a) => a !== l
+                      );
+
+                      const value = (
+                        document.getElementById(
+                          `${l}-checkbox`
+                        ) as HTMLInputElement
+                      ).checked;
+
+                      if (value) {
+                        return [...layersWithoutCurrent, l];
+                      }
+                      return layersWithoutCurrent;
+                    });
+                  }}
+                />
+              </div>
+            </Fragment>
+          ))}
+        </div>
+        <Stack direction="horizontal" gap={3} style={{ fontSize: 22 }}>
+          Show nitrogen dioxide data
+          <select
+            onChange={(e) => {
+              setShownImage(e.target.value === "none" ? null : e.target.value);
+            }}
+            style={{
+              padding: "8px 10px",
+              borderRadius: 0,
+              border: "1px solid #aaaaaa",
+              fontSize: 22,
+            }}
+          >
+            <option value="none">none</option>
+            <option value="2005">2005</option>
+            <option value="2010">2010</option>
+            <option value="2015">2015</option>
+            <option value="2020">2020</option>
+            <option value="2023">2023</option>
+          </select>
+        </Stack>
+      </Stack>
     </Stack>
   );
 }
