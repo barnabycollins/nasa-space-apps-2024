@@ -1,7 +1,6 @@
 import Map, {
   Layer,
   LngLatBoundsLike,
-  // Marker,
   Source,
   LayerProps,
 } from "react-map-gl/maplibre";
@@ -177,6 +176,7 @@ export function MapWrapper() {
                 <input
                   type="checkbox"
                   id={`${l}-checkbox`}
+                  checked
                   onClick={() => {
                     setShownMapLayers((layers) => {
                       const layersWithoutCurrent = layers.filter(
@@ -213,12 +213,9 @@ export function MapWrapper() {
               fontSize: 22,
             }}
           >
-            <option value="none">none</option>
-            <option value="2005">2005</option>
-            <option value="2010">2010</option>
-            <option value="2015">2015</option>
-            <option value="2020">2020</option>
-            <option value="2023">2023</option>
+            {["none", "2005", "2010", "2015", "2020", "2023"].map((v) => (
+              <option value={v}>{v}</option>
+            ))}
           </select>
         </Stack>
       </Stack>
