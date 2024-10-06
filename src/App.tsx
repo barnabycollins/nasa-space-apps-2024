@@ -5,6 +5,7 @@ import { MapWrapper } from "./components/MapWrapper";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import Slider from "react-slick";
 import { boxesData } from "./constants/content";
+import { Alert } from "react-bootstrap";
 
 /**
  *
@@ -48,10 +49,10 @@ function App() {
   useEffect(() => setBoxPage(0), [slideIndex]);
 
   const handleControls = (e) => {
-    if (e.key === "ArrowDown") {
+    if (e.key === "ArrowDown" || e.key === "ArrowRight") {
       slideTo(slideIndex + 1);
     }
-    if (e.key === "ArrowUp") {
+    if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
       slideTo(slideIndex - 1);
     }
 
@@ -77,9 +78,29 @@ function App() {
     };
   }, [boxOpen, slideIndex]);
 
-  return (
-    <main onKeyDown={(e) => handleControls(e)}>
+  const images = Array(13)
+    .fill(0)
+    .map((_, i) => (
+      <img
+        src={`./The British Coal Story - prototype-${i + 1}.svg`}
+        height={100}
+        width={100}
+        style={{ height: "90%", width: "90%" }}
+      />
+    ));
+
+  // push into 2nd last position
+  const show = images.slice(0, images.length - 2);
+  show.push(
+    <div style={{ height: "90%", width: "90%" }}>
       <MapWrapper />
+    </div>
+  );
+  const last = images.pop();
+  if (last) show.push(last);
+
+  return (
+    <main onKeyDown={(e) => handleControls(e)} autoFocus>
       <Slider
         ref={(slider) => {
           sliderRef = slider;
@@ -87,6 +108,18 @@ function App() {
         className="slider-fullscreen"
         {...settings}
       >
+        <div className="vh-100 vw-100 d-flex justify-content-center align-items-center">
+          <Alert>
+            Please press the <strong>arrow keys</strong> to continue
+          </Alert>
+        </div>
+        {show.map((component) => (
+          <div key={component.toString()} className="vh-100 vw-100">
+            <div className="w-100 h-100 p-1 d-flex justify-content-center align-items-center">
+              {component}
+            </div>
+          </div>
+        ))}
         {/* Original plan to make a modular grid sheet, with topics in rows and titles of each topic in the first column */}
         {/* {boxesData.map((box, i) => (
           <Box key={box.id} data={box} />
