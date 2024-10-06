@@ -1,18 +1,50 @@
-import { Stack } from "react-bootstrap";
+import { BoxData, PageData } from "../constants/content";
+import TitleLayout from "./layouts/Title";
+import HorizontalStackLayout from "./layouts/HorizontalStack";
 
-export default function Box({ content }: { content: any }) {
+export default function Box({
+  data,
+}: //   overflow,
+//   page,
+{
+  //   overflow: boolean;
+  data: BoxData;
+  //   page?: number;
+}) {
+  //   const elementsRef = useRef(data.content.map(() => createRef()));
+  const getLayout = (pageData: PageData) => {
+    switch (pageData.layout) {
+      case "title":
+        return <TitleLayout data={pageData} />;
+      case "horizontal-stack":
+        return <HorizontalStackLayout data={pageData} />;
+    }
+  };
+
+  const noOfPages = data.content.length;
   return (
-    <Stack
-      justify-content-center
-      align-items-center
-      className="justify-content-center align-items-center vw-100 vh-100"
-      //   style={
-      //     {
-      //       // backgroundColor: content.colour,
-      //     }
-      //   }
+    <div
+      style={{ width: "100vw", height: "100vh" }}
+      className="overflow-scroll"
     >
-      <h1>{content.id}</h1>
-    </Stack>
+      <div
+        style={{
+          backgroundColor: data.colour ?? "",
+          height: "100vh",
+          width: `${noOfPages}00vw`,
+        }}
+        className="d-flex"
+      >
+        {data.content.map((pageData) => (
+          <div
+            key={pageData.id}
+            style={{ width: "100vw", height: "100vh" }}
+            // ref={elementsRef.current[i]}
+          >
+            {getLayout(pageData)}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
