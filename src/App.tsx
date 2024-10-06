@@ -1,5 +1,7 @@
 import "./styles/App.css";
 import Box from "./components/Box";
+import Stack from "./components/Stack";
+import { MapWrapper } from "./components/MapWrapper";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import Slider from "react-slick";
 import { boxesData } from "./constants/content";
@@ -77,6 +79,7 @@ function App() {
 
   return (
     <main onKeyDown={(e) => handleControls(e)}>
+      <MapWrapper />
       <Slider
         ref={(slider) => {
           sliderRef = slider;
