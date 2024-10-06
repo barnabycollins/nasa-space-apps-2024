@@ -7,6 +7,24 @@ import Map, {
 } from "react-map-gl/maplibre";
 import { useEffect, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { Stack } from "react-bootstrap";
+
+const NO2_LEFT_EDGE = -11.6895;
+const NO2_TOP_EDGE = 60.3369;
+const NO2_RIGHT_EDGE = 3.8672;
+const NO2_BOTTOM_EDGE = 48.3838;
+
+const NO2_IMAGE_COORDS: [
+  [number, number],
+  [number, number],
+  [number, number],
+  [number, number]
+] = [
+  [NO2_LEFT_EDGE, NO2_TOP_EDGE],
+  [NO2_RIGHT_EDGE, NO2_TOP_EDGE],
+  [NO2_RIGHT_EDGE, NO2_BOTTOM_EDGE],
+  [NO2_LEFT_EDGE, NO2_BOTTOM_EDGE],
+];
 
 type Layer = {
   index: number;
@@ -46,6 +64,7 @@ const UK_BOUNDS: LngLatBoundsLike = [
 
 export function MapWrapper() {
   const [mapLayers, setMapLayers] = useState<Layer[]>([]);
+  const [shownImage, setShownImage] = useState<string | null>(null);
 
   useEffect(() => {
     // loadMap(
@@ -100,22 +119,47 @@ export function MapWrapper() {
   }, []);
 
   return (
-    <Map
-      // initialViewState={{
-      //   latitude: 54.6633126,
-      //   longitude: -2.7608274,
-      //   zoom: 5,
-      // }}
-      style={{ width: "60vw", height: "100vh" }}
-      mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
-      maxBounds={UK_BOUNDS}
-    >
-      {mapLayers.map(({ data, layerProps }) => (
-        <Source type="geojson" key={layerProps.id} data={data}>
-          <Layer {...layerProps} />
+    <Stack direction="horizontal">
+      <Map
+        // initialViewState={{
+        //   latitude: 54.6633126,
+        //   longitude: -2.7608274,
+        //   zoom: 5,
+        // }}
+        style={{ width: "60vw", height: "100vh" }}
+        mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+        maxBounds={UK_BOUNDS}
+      >
+        {mapLayers.map(({ data, layerProps }) => (
+          <Source type="geojson" key={layerProps.id} data={data}>
+            <Layer {...layerProps} />
+          </Source>
+        ))}
+        <Source
+          type="image"
+          url={`/NO2_images/${shownImage ?? "2005"} NO2 crop.png`}
+          coordinates={NO2_IMAGE_COORDS}
+        >
+          <Layer
+            id="geoff"
+            type="raster"
+            paint={{ "raster-opacity": shownImage !== null ? 1 : 0 }}
+          />
         </Source>
-      ))}
-      {/* <Marker longitude={-2.7608274} latitude={54.6633126} color="red" /> */}
-    </Map>
+        {/* <Marker longitude={-2.7608274} latitude={54.6633126} color="red" /> */}
+      </Map>
+      <select
+        onChange={(e) => {
+          setShownImage(e.target.value === "none" ? null : e.target.value);
+        }}
+      >
+        <option value="none">none</option>
+        <option value="2005">2005</option>
+        <option value="2010">2010</option>
+        <option value="2015">2015</option>
+        <option value="2020">2020</option>
+        <option value="2023">2023</option>
+      </select>
+    </Stack>
   );
 }
