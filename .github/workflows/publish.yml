@@ -27,7 +27,7 @@ jobs:
         run: npm run build
 
       - name: Write CNAME
-        run: echo "nasa.barnabycollins.com" > dist/CNAME
+        run: echo "coals.earth" > dist/CNAME
 
       - name: Deploy to gh-pages branch
         uses: s0/git-publish-subdir-action@develop
