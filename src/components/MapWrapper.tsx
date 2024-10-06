@@ -1,4 +1,9 @@
-import Map, { Layer, Marker, Source } from "react-map-gl/maplibre";
+import Map, {
+  Layer,
+  LngLatBoundsLike,
+  Marker,
+  Source,
+} from "react-map-gl/maplibre";
 import { useEffect, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
 
@@ -13,6 +18,11 @@ async function loadMap(
   setData(json);
 }
 
+const UK_BOUNDS: LngLatBoundsLike = [
+  { lat: 49.070649, lng: -24 },
+  { lat: 61.106236, lng: 16 },
+];
+
 export function MapWrapper() {
   const [mapData, setMapData] = useState<null | object>(null);
 
@@ -22,18 +32,19 @@ export function MapWrapper() {
 
   return (
     <Map
-      initialViewState={{
-        latitude: 54.6633126,
-        longitude: -2.7608274,
-        zoom: 5,
-      }}
+      // initialViewState={{
+      //   latitude: 54.6633126,
+      //   longitude: -2.7608274,
+      //   zoom: 5,
+      // }}
       style={{ width: "100vw", height: "100vh" }}
       mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+      maxBounds={UK_BOUNDS}
     >
       <Source type="geojson" data={mapData}>
         <Layer id="bob" type="fill" />
       </Source>
-      <Marker longitude={54.6633126} latitude={-2.7608274} color="red" />
+      <Marker longitude={-2.7608274} latitude={54.6633126} color="red" />
     </Map>
   );
 }
