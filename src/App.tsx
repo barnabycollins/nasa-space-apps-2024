@@ -12,19 +12,19 @@ import { MapWrapper } from "./components/MapWrapper";
  * BUILDER (BUILD STACKS)
  */
 function App() {
-  // const boxContent = [
-  //   { id: 1, colour: "red" },
-  //   { id: 2, colour: "blue" },
-  //   { id: 3, colour: "yellow" },
-  // ];
+  const boxContent = [
+    { id: 1, colour: "red" },
+    { id: 2, colour: "blue" },
+    { id: 3, colour: "yellow" },
+  ];
 
   return (
     <main>
-      {/* <Stack>
+      <Stack>
         {boxContent.map((content) => (
           <Box key={content.id} content={content} />
         ))}
-      </Stack> */}
+      </Stack>
       <MapWrapper />
     </main>
   );

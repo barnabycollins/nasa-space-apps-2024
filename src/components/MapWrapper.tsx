@@ -7,15 +7,29 @@ import Map, {
 import { useEffect, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
 
+type Layer = { name: string; index: number; data: object };
+
 async function loadMap(
-  mapPath: string,
-  setData: React.Dispatch<React.SetStateAction<object | null>>
+  {
+    name,
+    layerIndex,
+    fileName,
+  }: { name: string; layerIndex: number; fileName: string },
+  setData: React.Dispatch<React.SetStateAction<Layer[]>>
 ) {
-  const res = await fetch(mapPath);
+  const res = await fetch(`/maps/${fileName}.geojson`);
 
   const json = await res.json();
 
-  setData(json);
+  setData((input) => {
+    const current = input.filter((i) => i.name !== name);
+
+    return [
+      ...current.filter((l) => l.index < layerIndex),
+      { name, index: layerIndex, data: json },
+      ...current.filter((l) => l.index >= layerIndex),
+    ];
+  });
 }
 
 const UK_BOUNDS: LngLatBoundsLike = [
@@ -24,11 +38,20 @@ const UK_BOUNDS: LngLatBoundsLike = [
 ];
 
 export function MapWrapper() {
-  const [mapData, setMapData] = useState<null | object>(null);
+  const [mapLayers, setMapLayers] = useState<Layer[]>([]);
 
   useEffect(() => {
-    loadMap("/maps/Britain_plan_map.geojson", setMapData);
+    // loadMap(
+    //   { name: "basemap", layerIndex: 0, fileName: "old_britain" },
+    //   setMapLayers
+    // );
+    loadMap(
+      { name: "coalSeams", layerIndex: 1, fileName: "coal_seams" },
+      setMapLayers
+    );
   }, []);
+
+  console.log(mapLayers);
 
   return (
     <Map
@@ -37,13 +60,15 @@ export function MapWrapper() {
       //   longitude: -2.7608274,
       //   zoom: 5,
       // }}
-      style={{ width: "100vw", height: "100vh" }}
+      style={{ width: "60vw", height: "100vh" }}
       mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
       maxBounds={UK_BOUNDS}
     >
-      <Source type="geojson" data={mapData}>
-        <Layer id="bob" type="fill" />
-      </Source>
+      {mapLayers.map(({ name, data }) => (
+        <Source type="geojson" key={name} data={data}>
+          <Layer id={name} type="fill" />
+        </Source>
+      ))}
       <Marker longitude={-2.7608274} latitude={54.6633126} color="red" />
     </Map>
   );
