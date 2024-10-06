@@ -202,7 +202,7 @@ export function MapWrapper({ lang }: { lang: string }) {
                 <input
                   type="checkbox"
                   id={`${l}-checkbox`}
-                  checked
+                  checked={shownMapLayers.includes(l)}
                   onClick={() => {
                     setShownMapLayers((layers) => {
                       const layersWithoutCurrent = layers.filter(
