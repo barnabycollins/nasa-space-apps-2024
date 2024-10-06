@@ -130,7 +130,7 @@ export function MapWrapper() {
         //   longitude: -2.7608274,
         //   zoom: 5,
         // }}
-        style={{ width: "60vw", height: "100vh" }}
+        style={{ width: "90vw", height: "90vh" }}
         mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
         maxBounds={UK_BOUNDS}
       >

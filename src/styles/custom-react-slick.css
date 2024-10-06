@@ -4,17 +4,23 @@
 
 /* buttons */
 .slick-arrow.slick-prev {
-  left: 25px;
   z-index: 1;
+  left: 16px;
+  top: 44%;
+  transform: rotate(90deg);
 }
 .slick-arrow.slick-next {
-  right: 25px;
+  right: unset;
+  top: unset;
+  left: 16px;
+  bottom: 44%;
+  transform: rotate(90deg);
 }
 
 .slick-dots {
   bottom: unset;
   top: 50%;
-  right: 10px;
+  left: 13px;
   transform: translateY(-50%);
   z-index: 1;
   width: fit-content;
