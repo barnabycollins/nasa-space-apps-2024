@@ -1,7 +1,7 @@
 import Map, {
   Layer,
   LngLatBoundsLike,
-  Marker,
+  // Marker,
   Source,
   LayerProps,
 } from "react-map-gl/maplibre";
