@@ -3,18 +3,21 @@ import Map, {
   LngLatBoundsLike,
   Marker,
   Source,
+  LayerProps,
 } from "react-map-gl/maplibre";
 import { useEffect, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
 
-type Layer = { name: string; index: number; data: object };
+type Layer = {
+  index: number;
+  data: object;
+  layerProps: LayerProps;
+};
 
 async function loadMap(
-  {
-    name,
-    layerIndex,
-    fileName,
-  }: { name: string; layerIndex: number; fileName: string },
+  layerProps: LayerProps,
+  layerIndex: number,
+  fileName: string,
   setData: React.Dispatch<React.SetStateAction<Layer[]>>
 ) {
   const res = await fetch(`/maps/${fileName}.geojson`);
@@ -22,12 +25,16 @@ async function loadMap(
   const json = await res.json();
 
   setData((input) => {
-    const current = input.filter((i) => i.name !== name);
+    const current = input.filter((i) => i.layerProps.id !== layerProps.id);
 
     return [
-      ...current.filter((l) => l.index < layerIndex),
-      { name, index: layerIndex, data: json },
-      ...current.filter((l) => l.index >= layerIndex),
+      ...current.filter((l) => l.index <= layerIndex),
+      {
+        index: layerIndex,
+        data: json,
+        layerProps,
+      },
+      ...current.filter((l) => l.index > layerIndex),
     ];
   });
 }
@@ -42,16 +49,55 @@ export function MapWrapper() {
 
   useEffect(() => {
     // loadMap(
-    //   { name: "basemap", layerIndex: 0, fileName: "old_britain" },
+    //   { name: "basemap", layerIndex: 0, fileName: "britain_standard" },
     //   setMapLayers
     // );
     loadMap(
-      { name: "coalSeams", layerIndex: 1, fileName: "coal_seams" },
+      {
+        id: "coalSeams",
+        type: "fill",
+        paint: {
+          "fill-color": ["rgba", 0, 0, 0, 0.15],
+        },
+      },
+      1,
+      "coal_seams",
+      setMapLayers
+    );
+    loadMap(
+      {
+        id: "income",
+        type: "fill",
+        paint: {
+          "fill-color": [
+            "rgba",
+            128,
+            0,
+            0,
+            // min: 13000, max 63300
+            // ["-", 1, ["/", ["-", ["get", "GDHI"], 13000], 63300 - 13000]],
+            // log scale
+            [
+              "-",
+              1,
+              [
+                "*",
+                [
+                  "/",
+                  ["log2", ["-", ["get", "GDHI"], 13000 - 1]],
+                  ["log2", 63300 - 12999],
+                ],
+                1,
+              ],
+            ],
+          ],
+        },
+      },
+      2,
+      "gros_domestic_household_income_by_region",
       setMapLayers
     );
   }, []);
-
-  console.log(mapLayers);
 
   return (
     <Map
@@ -64,9 +110,9 @@ export function MapWrapper() {
       mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
       maxBounds={UK_BOUNDS}
     >
-      {mapLayers.map(({ name, data }) => (
-        <Source type="geojson" key={name} data={data}>
-          <Layer id={name} type="fill" />
+      {mapLayers.map(({ data, layerProps }) => (
+        <Source type="geojson" key={layerProps.id} data={data}>
+          <Layer {...layerProps} />
         </Source>
       ))}
       <Marker longitude={-2.7608274} latitude={54.6633126} color="red" />
