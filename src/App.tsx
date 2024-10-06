@@ -5,7 +5,7 @@ import { MapWrapper } from "./components/MapWrapper";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import Slider from "react-slick";
 import { boxesData } from "./constants/content";
-import { Alert } from "react-bootstrap";
+import { Alert, Button, FormLabel, FormSelect } from "react-bootstrap";
 
 /**
  *
@@ -15,38 +15,6 @@ function App() {
   const [slideIndex, setSlideIndex] = useState(0);
   let sliderRef = useRef(null);
   const slideTo = (num: number) => sliderRef.slickGoTo(num);
-
-  const boxOpen = false;
-
-  // get title page of every box
-  const boxCovers: ReactNode[] = boxesData.map((box) => (
-    <Box key={box.id} data={box.content[0]} colour={box.colour} />
-  ));
-
-  const getBoxSlides = (index) =>
-    boxesData[index].content.map((c) => (
-      <Box key={c.id} data={c} colour={boxesData[index].colour} />
-    ));
-
-  // const openBoxContent = boxOpen
-  //   ? boxesData[openBoxIndex].content.map((c) => (
-  //       <Box key={c.id} data={c} colour={boxesData[openBoxIndex].colour} />
-  //     ))
-  //   : null;
-
-  const [slides, setSlides] = useState(boxCovers);
-
-  // useEffect(() => setSlides(openBoxContent ?? boxCovers), [openBoxContent]);
-
-  // useEffect(() => {
-  //   if (boxOpen && slideIndex === 0) {
-  //     setSlides(boxCovers);
-  //   }
-  // }, [boxCovers, boxOpen, slideIndex]);
-
-  const [boxPage, setBoxPage] = useState(0);
-
-  useEffect(() => setBoxPage(0), [slideIndex]);
 
   const handleControls = (e) => {
     if (e.key === "ArrowDown" || e.key === "ArrowRight") {
@@ -65,29 +33,32 @@ function App() {
     // }
   };
 
-  const settings = useMemo(() => {
-    return {
-      vertical: !boxOpen,
-      slidesToShow: 1,
-      slidesToScroll: 1,
-      arrows: true,
-      dots: true,
-      accessibility: false,
-      speed: 500,
-      beforeChange: (current, next) => setSlideIndex(next),
-    };
-  }, [boxOpen, slideIndex]);
+  const [lang, setLang] = useState("en");
+
+  const settings = {
+    vertical: true,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    arrows: false,
+    dots: true,
+    // accessibility: false,
+    speed: 500,
+    beforeChange: (current, next) => setSlideIndex(next),
+  };
 
   const images = Array(13)
     .fill(0)
-    .map((_, i) => (
-      <img
-        src={`./The British Coal Story - prototype-${i + 1}.svg`}
-        height={100}
-        width={100}
-        style={{ height: "90%", width: "90%" }}
-      />
-    ));
+    .map((_, i) => {
+      const val = lang === "en" ? `-${i + 1}` : `, Cymraeg-${i + 1}`;
+      return (
+        <img
+          src={`./The British Coal Story - prototype${val}.svg`}
+          height={100}
+          width={100}
+          style={{ height: "90%", width: "90%" }}
+        />
+      );
+    });
 
   // push into 2nd last position
   const show = images.slice(0, images.length - 2);
@@ -100,7 +71,11 @@ function App() {
   if (last) show.push(last);
 
   return (
-    <main onKeyDown={(e) => handleControls(e)} autoFocus>
+    <main
+      onKeyDown={(e) => handleControls(e)}
+      autoFocus
+      className="position-relative"
+    >
       <Slider
         ref={(slider) => {
           sliderRef = slider;
@@ -108,9 +83,42 @@ function App() {
         className="slider-fullscreen"
         {...settings}
       >
-        <div className="vh-100 vw-100 d-flex justify-content-center align-items-center">
-          <Alert>
-            Please press the <strong>arrow keys</strong> to continue
+        <div
+          className="vw-100 vh-100 d-flex justify-content-center align-items-center"
+          style={{ zIndex: 3 }}
+        >
+          <Alert variant="info">
+            <div className="m2-3 d-flex justify-items-around align-items-center">
+              {lang === "en" ? (
+                <span>
+                  {" "}
+                  Please press this <strong>arrow button</strong> to continue
+                </span>
+              ) : (
+                <span>
+                  pwyswch y bysellau saeth i barhau, os gwelwch yn dda
+                </span>
+              )}
+
+              <Button
+                type="button"
+                variant="none"
+                className=""
+                onClick={() => slideTo(slideIndex + 1)}
+              >
+                <i className="bi bi-arrow-down-square-fill"></i>
+              </Button>
+            </div>
+            <div className="d-flex gap-3 align-items-center">
+              Language:
+              <FormSelect
+                onChange={(e) => setLang(e.target.value)}
+                style={{ width: 130 }}
+              >
+                <option value="en">English</option>
+                <option value="cy">Cymraeg</option>
+              </FormSelect>
+            </div>
           </Alert>
         </div>
         {show.map((component) => (
@@ -120,11 +128,46 @@ function App() {
             </div>
           </div>
         ))}
+
         {/* Original plan to make a modular grid sheet, with topics in rows and titles of each topic in the first column */}
         {/* {boxesData.map((box, i) => (
           <Box key={box.id} data={box} />
         ))} */}
       </Slider>
+
+      {slideIndex !== 0 && (
+        <div
+          className="position-absolute top-0 end-0 m-2 p-1"
+          style={{ zIndex: 3 }}
+        >
+          <Alert variant="info">
+            <div>
+              <FormSelect onChange={(e) => setLang(e.target.value)}>
+                <option value="en">English</option>
+                <option value="cy">Cymraeg</option>
+              </FormSelect>
+            </div>
+            <div className="mt-3 d-flex justify-items-around">
+              <Button
+                type="button"
+                variant="none"
+                className=""
+                onClick={() => slideTo(slideIndex + 1)}
+              >
+                <i className="bi bi-arrow-down-square-fill"></i>
+              </Button>
+              <Button
+                type="button"
+                variant="none"
+                className=""
+                onClick={() => slideTo(slideIndex - 1)}
+              >
+                <i className="bi bi-arrow-up-square-fill"></i>
+              </Button>
+            </div>
+          </Alert>
+        </div>
+      )}
     </main>
   );
 }
