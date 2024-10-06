@@ -98,6 +98,7 @@ export function MapWrapper() {
             0,
             0,
             // min: 13000, max 63300
+            // linear scale
             // ["-", 1, ["/", ["-", ["get", "GDHI"], 13000], 63300 - 13000]],
             // log scale
             [
