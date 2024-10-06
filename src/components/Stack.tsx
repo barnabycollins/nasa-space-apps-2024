@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import Slider from "react-slick";
 
 export default function Stack({
@@ -9,34 +9,27 @@ export default function Stack({
   boxOpen?: boolean;
 }) {
   const [slideIndex, setSlideIndex] = useState(0);
-  let sliderRef = useRef(null);
-
-  const settings = useMemo(() => {
-    return {
-      vertical: !boxOpen,
-      slidesToShow: 1,
-      slidesToScroll: 1,
-      arrows: !boxOpen || slideIndex === 0,
-      dots: !boxOpen || slideIndex === 0,
-      speed: 500,
-      beforeChange: (current, next) => setSlideIndex(next),
-    };
-  }, [boxOpen, slideIndex]);
+  const sliderRef = useRef<Slider | null>(null);
 
   useEffect(() => {
     if (boxOpen) {
-      sliderRef.slickGoTo(1);
+      sliderRef.current?.slickGoTo(1);
     }
   }, [boxOpen]);
+
   return (
     <div className="vh-100 vw-100">
       <Slider
-        ref={(slider) => {
-          sliderRef = slider;
-        }}
+        ref={sliderRef}
         className="slider-fullscreen"
         // className="vh-100 vw-100"
-        {...settings}
+        vertical={!boxOpen}
+        slidesToShow={1}
+        slidesToScroll={1}
+        arrows={!boxOpen || slideIndex === 0}
+        dots={!boxOpen || slideIndex === 0}
+        speed={500}
+        beforeChange={(_, next) => setSlideIndex(next)}
       >
         {...children}
       </Slider>
