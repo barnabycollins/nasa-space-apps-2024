@@ -1,50 +1,24 @@
 import "./styles/App.css";
-import Box from "./components/Box";
-import Stack from "./components/Stack";
 import { MapWrapper } from "./components/MapWrapper";
-import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import Slider from "react-slick";
-import { boxesData } from "./constants/content";
-import { Alert, Button, FormLabel, FormSelect } from "react-bootstrap";
+import { Alert, Button, FormSelect } from "react-bootstrap";
 
-/**
- *
- * @returns Modes:
- */
 function App() {
   const [slideIndex, setSlideIndex] = useState(0);
-  let sliderRef = useRef(null);
-  const slideTo = (num: number) => sliderRef.slickGoTo(num);
+  const sliderRef = useRef<Slider | null>(null);
+  const slideTo = (num: number) => sliderRef.current?.slickGoTo(num);
 
-  const handleControls = (e) => {
+  const handleControls = (e: React.KeyboardEvent<HTMLElement>) => {
     if (e.key === "ArrowDown" || e.key === "ArrowRight") {
       slideTo(slideIndex + 1);
     }
     if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
       slideTo(slideIndex - 1);
     }
-
-    // if (e.key === "ArrowRight") {
-    //   console.log("ting");
-    //   setBoxPage(boxPage + 1);
-    // }
-    // if (e.key === "ArrowLeft") {
-    //   slideTo(slideIndex - 1);
-    // }
   };
 
   const [lang, setLang] = useState("en");
-
-  const settings = {
-    vertical: true,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    arrows: false,
-    dots: true,
-    // accessibility: false,
-    speed: 500,
-    beforeChange: (current, next) => setSlideIndex(next),
-  };
 
   const images = Array(13)
     .fill(0)
@@ -52,7 +26,7 @@ function App() {
       const val = lang === "en" ? `-${i + 1}` : `, Cymraeg-${i + 1}`;
       return (
         <img
-          src={`./The British Coal Story - prototype${val}.svg`}
+          src={`/slides/The British Coal Story - prototype${val}.svg`}
           height={100}
           width={100}
           style={{ height: "90%", width: "90%" }}
@@ -64,7 +38,7 @@ function App() {
   const show = images.slice(0, images.length - 2);
   show.push(
     <div style={{ height: "90%", width: "90%" }}>
-      <MapWrapper />
+      <MapWrapper lang={lang} />
     </div>
   );
   const last = images.pop();
@@ -77,11 +51,18 @@ function App() {
       className="position-relative"
     >
       <Slider
-        ref={(slider) => {
-          sliderRef = slider;
-        }}
+        ref={sliderRef}
         className="slider-fullscreen"
-        {...settings}
+        vertical={true}
+        slidesToShow={1}
+        slidesToScroll={1}
+        arrows={false}
+        dots={true}
+        swipe={true}
+        draggable={false}
+        // accessibility: false
+        speed={500}
+        beforeChange={(_, next) => setSlideIndex(next)}
       >
         <div
           className="vw-100 vh-100 d-flex justify-content-center align-items-center"
@@ -112,6 +93,7 @@ function App() {
             <div className="d-flex gap-3 align-items-center">
               Language:
               <FormSelect
+                value={lang}
                 onChange={(e) => setLang(e.target.value)}
                 style={{ width: 130 }}
               >
@@ -142,7 +124,10 @@ function App() {
         >
           <Alert variant="info">
             <div>
-              <FormSelect onChange={(e) => setLang(e.target.value)}>
+              <FormSelect
+                value={lang}
+                onChange={(e) => setLang(e.target.value)}
+              >
                 <option value="en">English</option>
                 <option value="cy">Cymraeg</option>
               </FormSelect>

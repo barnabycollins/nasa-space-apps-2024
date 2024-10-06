@@ -4,9 +4,9 @@ import Map, {
   Source,
   LayerProps,
 } from "react-map-gl/maplibre";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { Stack } from "react-bootstrap";
+import { Alert } from "react-bootstrap";
 
 const NO2_LEFT_EDGE = -11.6895;
 const NO2_TOP_EDGE = 60.3369;
@@ -15,6 +15,23 @@ const NO2_BOTTOM_EDGE = 48.3838;
 
 const allowedMapLayers = ["coalSeams", "income"] as const;
 type AllowedMapLayer = (typeof allowedMapLayers)[number];
+
+const mapTranslations: {
+  [lang: string]: Record<AllowedMapLayer | "no2" | "none", string>;
+} = {
+  en: {
+    coalSeams: "Coal seams",
+    income: "Regional income",
+    no2: "Show nitrogen dioxide data:",
+    none: "none",
+  },
+  cy: {
+    coalSeams: "Gwythiennau glo",
+    income: "Incwm rhanbarthol",
+    no2: "Dangos data nitrogen deuocsid:",
+    none: "dim",
+  },
+};
 
 const NO2_IMAGE_COORDS: [
   [number, number],
@@ -64,7 +81,7 @@ const UK_BOUNDS: LngLatBoundsLike = [
   { lat: 61.106236, lng: 16 },
 ];
 
-export function MapWrapper() {
+export function MapWrapper({ lang }: { lang: string }) {
   const [mapLayers, setMapLayers] = useState<Layer[]>([]);
   const [shownImage, setShownImage] = useState<string | null>(null);
 
@@ -122,15 +139,23 @@ export function MapWrapper() {
     );
   }, []);
 
+  const translation = useMemo(() => mapTranslations[lang], [lang]);
+
   return (
-    <Stack direction="horizontal" gap={4}>
+    <div
+      style={{
+        display: "flex",
+        gap: 60,
+        alignItems: "center",
+      }}
+    >
       <Map
         // initialViewState={{
         //   latitude: 54.6633126,
         //   longitude: -2.7608274,
         //   zoom: 5,
         // }}
-        style={{ width: "90vw", height: "90vh" }}
+        style={{ width: "100%", height: "90vh", flexGrow: 1 }}
         mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
         maxBounds={UK_BOUNDS}
       >
@@ -162,16 +187,17 @@ export function MapWrapper() {
         </Source>
         {/* <Marker longitude={-2.7608274} latitude={54.6633126} color="red" /> */}
       </Map>
-      <Stack>
+      <Alert variant="info" style={{ width: 400 }}>
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "100px 1fr",
+            gridTemplateColumns: "260px 1fr",
+            rowGap: 20,
           }}
         >
           {allowedMapLayers.map((l) => (
             <Fragment key={l}>
-              <div>{l}</div>
+              <div className="py-1">{translation[l]}</div>
               <div>
                 <input
                   type="checkbox"
@@ -199,9 +225,7 @@ export function MapWrapper() {
               </div>
             </Fragment>
           ))}
-        </div>
-        <Stack direction="horizontal" gap={3} style={{ fontSize: 22 }}>
-          Show nitrogen dioxide data
+          <div className="py-1">{translation.no2}</div>
           <select
             onChange={(e) => {
               setShownImage(e.target.value === "none" ? null : e.target.value);
@@ -210,15 +234,14 @@ export function MapWrapper() {
               padding: "8px 10px",
               borderRadius: 0,
               border: "1px solid #aaaaaa",
-              fontSize: 22,
             }}
           >
             {["none", "2005", "2010", "2015", "2020", "2023"].map((v) => (
-              <option value={v}>{v}</option>
+              <option value={v}>{v === "none" ? translation.none : v}</option>
             ))}
           </select>
-        </Stack>
-      </Stack>
-    </Stack>
+        </div>
+      </Alert>
+    </div>
   );
 }
